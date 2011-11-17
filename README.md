@@ -9,7 +9,6 @@ This RT Extension sets start and due time when creating a ticket via the web int
 Before you can install this RT Extension you must install the perl module `Date::Manip` first. The easiest way is to use CPAN:
 
 ~~~~~~~ {.bash}
-cpan update
 cpan -i Date::Manip
 ~~~~~~~
 
@@ -102,16 +101,14 @@ Please report any bugs or feature requests to the [author](#author).
 
 # Acknowledgements
 
-Special thanks to the *synetics GmbH*, <http://i-doit.org/> for initiating this
-project!
+Special thanks to the *synetics GmbH*, <http://i-doit.org/> for initiating and supporting this project!
 
 
 # Copyright and License
 
 Copyright (C) 2011 Benjamin Heisig, <bheisig@synetics.de>
 
-This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
+This program is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
 Request Tracker (RT) is Copyright Best Practical Solutions, LLC.
 

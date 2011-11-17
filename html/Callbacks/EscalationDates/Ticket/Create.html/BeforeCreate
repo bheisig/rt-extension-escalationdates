@@ -27,6 +27,7 @@ my $priorityField = RT->Config->Get('PriorityField');
 if (!$$ARGSRef{$priorityField} || $$ARGSRef{$priorityField} =~ /^[ \t]*$/) {
     # Set default priority:
     $$ARGSRef{$priorityField} = RT->Config->Get('DefaultPriority');
+    # @todo check wether setting exists
 }
 
 ## Call only after POSTing formular:
@@ -52,22 +53,24 @@ if (!exists $$ARGSRef{'AddMoreAttach'} && defined($$ARGSRef{'id'}) &&
         if (!exists $priorities{$priority}) {
             $$skip_create = 1;
             push @{$results}, loc('Error: unconfigured priority');
+        } else {
+            my $deltaStr = $priorities{$priority};
+
+            ## Configure Date::Manip:
+            my %dateConfig = RT->Config->Get('DateManipConfig');
+            # @todo check wether setting exists
+            $date->config(%dateConfig);
+
+            ## Compute date delta and format result:
+            my $delta = $date->new_delta();
+            my $startDate = $$ARGSRef{'Starts'};
+            $date->parse($startDate);
+            $delta->parse($deltaStr);
+            my $calc = $date->calc($delta);
+            my $due = $calc->printf($format);
+
+            $$ARGSRef{'Due'} = $due;
         }
-        my $deltaStr = $priorities{$priority};
-
-        ## Configure Date::Manip:
-        my %dateConfig = RT->Config->Get('DateManipConfig');
-        $date->config(%dateConfig);
-
-        ## Compute date delta and format result:
-        my $delta = $date->new_delta();
-        my $startDate = $$ARGSRef{'Starts'};
-        $date->parse($startDate);
-        $delta->parse($deltaStr);
-        my $calc = $date->calc($delta);
-        my $due = $calc->printf($format);
-
-        $$ARGSRef{'Due'} = $due;
     }
 }
 

@@ -1,11 +1,13 @@
 use inc::Module::Install;
 
-RTx('RT-Extension-EscalationDates');
-license('perl');
-author('Benjamin Heisig <bheisig@synetics.de>');
-version('0.1');
-abstract_from('lib/RT/Extension/EscalationDates.pm');
+RTx 'RT-Extension-EscalationDates';
+
+all_from 'lib/RT/Extension/EscalationDates.pm';
+license 'perl';
 repository 'git://git.benjaminheisig.net/rt-extension-escalationdates.git';
+
+requires 'Date::Manip' => '6.25';
+auto_install();
 
 sign;
 &WriteAll;
