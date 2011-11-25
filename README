@@ -1,114 +1,118 @@
-RT-Extension-EscalationDates - Set start and due time automatically when
-creating a ticket
+NAME
+    "RT::Extension::EscalationDates" - Set start and due time automatically
+    when creating a ticket
 
+DESCRIPTION
+    This RT Extension sets start and due time when creating a ticket via the
+    web interface. It provides handling business hours defined in RT site
+    configuration file.
 
+INSTALLATION
+    This extension based on the following modules:
 
-This RT Extension sets start and due time when creating a ticket via the
-web interface. It provides handling business hours defined in RT site
-configuration file.
+        RT >= 4.0.0
+        Date::Manip >= 6.25
 
-Installation
-============
+    To install this extension, run the following commands:
 
-Before you can install this RT Extension you must install the perl
-module Date::Manip first. The easiest way is to use CPAN:
+        perl Makefile.PL
+        make
+        make test
+        make install
+        make initdb
 
-    cpan update
-    cpan -i Date::Manip
+CONFIGURATION
+  RT SITE CONFIGURATION
+    To enabled this extension edit the RT site configuration located in
+    "$RT_HOME/etc/RT_SiteConfig" (where $RT_HOME is the path to your RT
+    installation):
 
-To install this extension, run the following commands:
+        Set(@Plugins,qw(RT::Extension::EscalationDates));
 
-    perl Makefile.PL
-    make
-    make test
-    make install
+    It's very important that you already configured a custom field with your
+    priorities. After this step you must add this field to your
+    configuration:
 
-Configuration
-=============
+        Set($PriorityField, 'Object-RT::Ticket--CustomField-1-Values');
 
-To make this extension active register it to in RT site configuration
-file located in RT_HOME/etc/RT_SiteConfig.pm where RT_HOME is the path
-to your RT installation.
+    In this example the first created custom field is used.
 
-    Set(@Plugins,qw(RT::Extension::EscalationDates));
+    Also you must define several priorities and relative dates for
+    escalations:
 
-It's very important that you already configured a custom field with your
-priorities. After this step you must add this field to your
-configuration:
+        Set(%EscalateTicketsByPriority, ( 
+            'A' => 'in 2 business hours',
+            'B' => 'in 22 business hours',
+            'C' => 'in 70 business hours',
+            'D' => 'in 468 business hours'
+        ));
 
-    Set($PriorityField, 'Object-RT::Ticket--CustomField-1-Values');
+    Additionally you must define a default priority used when creating a
+    ticket:
 
-In this example the first created custom field is used.
+        Set($DefaultPriority, 'C');
 
-Also you must define several priorities and relative dates for
-escalations:
+    Use only already configured priorities from %EscalateTicketsByPriority,
+    for example "C".
 
-    Set(%EscalateTicketsByPriority, ( 
-        'A' => 'in 2 business hours',
-        'B' => 'in 22 business hours',
-        'C' => 'in 70 business hours',
-        'D' => 'in 468 business hours'
-    ));
+    To overwrite "Date::Manip"'s default configuration you may set the
+    following:
 
-Additionally you must define a default priority used when creating a
-ticket:
+        Set(%DateManipConfig, (
+            'WorkDayBeg', '9:00',
+            'WorkDayEnd', '17:00', 
+            #'WorkDay24Hr', '0',
+            #'WorkWeekBeg', '1',
+            #'WorkWeekEnd', '7'
+        ));
 
-    Set($DefaultPriority, 'C');
+    You can find more information about the configurable parameters under
+    <http://search.cpan.org/dist/Date-Manip/lib/Date/Manip/Config.pod#BUSINE
+    SS_CONFIGURATION_VARIABLES>.
 
-Use only already configured priorities from %EscalateTicketsByPriority,
-for example 'C'.
+    After all your new configuration will take effect after restarting your
+    RT environment:
 
-To overwrite Date::Manip's default configuration you may set the
-following:
+        rm -rf $RT_HOME/var/mason_data/obj/* && service apache2 restart
 
-    Set(%DateManipConfig, (
-        'WorkDayBeg', '9:00',
-        'WorkDayEnd', '17:00', 
-        #'WorkDay24Hr', '0',
-        #'WorkWeekBeg', '1',
-        #'WorkWeekEnd', '7'
-    ));
+    This is an example for deleting the mason cache and restarting the
+    Apache HTTP web server on a Debian GNU/Linux based operating system.
 
-You can find more information about the configurable parameters under
-http://search.cpan.org/~sbeck/Date-Manip-6.25/lib/Date/Manip/Config.pod#BUSINESS_CONFIGURATION_VARIABLES.
+AUTHOR
+    Benjamin Heisig, <bheisig@synetics.de>
 
-After all your new configuration will take effect after restarting your
-RT environment:
+SUPPORT AND DOCUMENTATION
+    You can find documentation for this module with the "perldoc" command.
 
-    rm -rf RT_HOME/var/mason_data/obj/* && service apache2 restart
+        perldoc RT::Extension::EscalationDates
 
-This is an example for deleting the mason cache and restarting the
-Apache HTTP web server on a Debian based operating system.
+    You can also look for information at:
 
-Author
-======
+    *   Search CPAN
 
-Benjamin Heisig, bheisig@synetics.de
+        <http://search.cpan.org/dist/RT-Extension-EscalationDates/>
 
-Support and Documentation
-=========================
+    *   RT: CPAN's request tracker
 
-You can find documentation for this module with the perldoc command.
+        <http://rt.cpan.org/NoAuth/Bugs.html?Dist=RT-Extension-EscalationDat
+        es>
 
-    perldoc RT::Extension::EscalationDates
+    *   AnnoCPAN: Annotated CPAN documentation
 
-Bugs
-====
+        <http://annocpan.org/dist/RT-Extension-EscalationDates>
 
-Please report any bugs or feature requests to the author.
+    *   CPAN Ratings
 
-Acknowledgements
-================
+        <http://cpanratings.perl.org/d/RT-Extension-EscalationDates>
 
-Special thanks to the synetics GmbH, http://i-doit.org/ for initiating
-this project!
+BUGS
+    Please report any bugs or feature requests to the author.
 
-Copyright and License
-=====================
+COPYRIGHT AND LICENSE
+    Copyright 2011 synetics GmbH, <http://i-doit.org/>
 
-Copyright (C) 2011 Benjamin Heisig, bheisig@synetics.de
+    This program is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
 
-This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
+    Request Tracker (RT) is Copyright Best Practical Solutions, LLC.
 
-Request Tracker (RT) is Copyright Best Practical Solutions, LLC.

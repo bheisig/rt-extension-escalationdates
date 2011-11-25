@@ -1,18 +1,16 @@
 package RT::Extension::EscalationDates;
 
+use 5.010;
 use warnings;
 use strict;
+
+our $VERSION = '0.2';
 
 
 =head1 NAME
 
-RT::Extension::EscalationDates - Set start and due time automatically when
+C<RT::Extension::EscalationDates> - Set start and due time automatically when
 creating a ticket
-
-
-=cut
-
-our $VERSION = '0.1';
 
 
 =head1 DESCRIPTION
@@ -22,6 +20,78 @@ interface. It provides handling business hours defined in RT site configuration
 file.
 
 
+=head1 INSTALLATION
+
+This extension based on the following modules:
+
+    RT >= 4.0.0
+    Date::Manip >= 6.25
+
+To install this extension, run the following commands:
+
+    perl Makefile.PL
+    make
+    make test
+    make install
+    make initdb
+
+
+=head1 CONFIGURATION
+
+
+=head2 RT SITE CONFIGURATION
+
+To enabled this extension edit the RT site configuration located in
+C<$RT_HOME/etc/RT_SiteConfig> (where C<$RT_HOME> is the path to your RT
+installation):
+
+    Set(@Plugins,qw(RT::Extension::EscalationDates));
+
+It's very important that you already configured a custom field with your
+priorities. After this step you must add this field to your configuration:
+
+    Set($PriorityField, 'Object-RT::Ticket--CustomField-1-Values');
+
+In this example the first created custom field is used.
+
+Also you must define several priorities and relative dates for escalations:
+
+    Set(%EscalateTicketsByPriority, ( 
+        'A' => 'in 2 business hours',
+        'B' => 'in 22 business hours',
+        'C' => 'in 70 business hours',
+        'D' => 'in 468 business hours'
+    ));
+
+Additionally you must define a default priority used when creating a ticket:
+
+    Set($DefaultPriority, 'C');
+
+Use only already configured priorities from C<%EscalateTicketsByPriority>, for
+example C<C>.
+
+To overwrite C<Date::Manip>'s default configuration you may set the following:
+
+    Set(%DateManipConfig, (
+        'WorkDayBeg', '9:00',
+        'WorkDayEnd', '17:00', 
+        #'WorkDay24Hr', '0',
+        #'WorkWeekBeg', '1',
+        #'WorkWeekEnd', '7'
+    ));
+
+You can find more information about the configurable parameters under
+L<http://search.cpan.org/dist/Date-Manip/lib/Date/Manip/Config.pod#BUSINESS_CONFIGURATION_VARIABLES>.
+
+After all your new configuration will take effect after restarting your RT
+environment:
+
+    rm -rf $RT_HOME/var/mason_data/obj/* && service apache2 restart
+
+This is an example for deleting the mason cache and restarting the Apache HTTP
+web server on a Debian GNU/Linux based operating system.
+
+
 =head1 AUTHOR
 
 Benjamin Heisig, E<lt>bheisig@synetics.deE<gt>
@@ -29,9 +99,31 @@ Benjamin Heisig, E<lt>bheisig@synetics.deE<gt>
 
 =head1 SUPPORT AND DOCUMENTATION
 
-You can find documentation for this module with the perldoc command.
+You can find documentation for this module with the C<perldoc> command.
 
     perldoc RT::Extension::EscalationDates
+
+You can also look for information at:
+
+=over 4
+
+=item * Search CPAN
+
+L<http://search.cpan.org/dist/RT-Extension-EscalationDates/>
+
+=item * RT: CPAN's request tracker
+
+L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=RT-Extension-EscalationDates>
+
+=item * AnnoCPAN: Annotated CPAN documentation
+
+L<http://annocpan.org/dist/RT-Extension-EscalationDates>
+
+=item * CPAN Ratings
+
+L<http://cpanratings.perl.org/d/RT-Extension-EscalationDates>
+
+=back
 
 
 =head1 BUGS
@@ -39,15 +131,9 @@ You can find documentation for this module with the perldoc command.
 Please report any bugs or feature requests to the L<author|/"AUTHOR">.
 
 
-=head1 ACKNOWLEDGEMENTS
-
-Special thanks to the synetics GmbH, C<< <http://i-doit.org/> >>for initiating
-this project!
-
-
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2011 Benjamin Heisig, E<lt>bheisig@synetics.deE<gt>
+Copyright 2011 synetics GmbH, E<lt>http://i-doit.org/E<gt>
 
 This program is free software; you can redistribute it and/or modify it under
 the same terms as Perl itself.
@@ -57,4 +143,4 @@ Request Tracker (RT) is Copyright Best Practical Solutions, LLC.
 
 =cut
 
-1; # End of RT::Extension::EscalationDates
+1;
