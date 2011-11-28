@@ -115,7 +115,7 @@ sub Prepare {
 
     ## Check configured priorities:
     my %priorities = RT->Config->Get('EscalateTicketsByPriority');
-    unless ($priorities) {
+    unless (%priorities) {
         $RT::Logger->error(
             'Config: Information about escalating tickets by priority not set.'
         );
@@ -165,13 +165,20 @@ sub Commit {
     my $cfPriority = RT->Config->Get('PriorityField');
     my $priority = $ticket->FirstCustomFieldValue($cfPriority);
 
+    $RT::Logger->debug('Handling ticket: ' . $ticket->Id);
+
     ## Set default priority:
     unless($priority) {
+        $RT::Logger->info('Set default priority: ' . $priority);
+
         $priority = RT->Config->Get('DefaultPriority');
+
         my $cf = RT::CustomField->new($RT::SystemUser);
         $cf->LoadByNameAndQueue(Name => $cfPriority, Queue => $ticket->Queue);
         $ticket->AddCustomFieldValue(Field => $cf, Value => $priority);
     }
+
+    $RT::Logger->debug('Priority: ' . $priority);
 
     my $date = new Date::Manip::Date;
 
@@ -181,11 +188,14 @@ sub Commit {
     ## Destinated default time to start is (simply) now:
     my $now  = 'now';
 
-    ## Set start date:
+    ## Look at start date:
     if (!$starts || $starts eq '1970-01-01 00:00:00') {
+        $RT::Logger->info('Set start date.');
+
         $date->parse($now);
         $starts = $date->printf($format);
 
+        ## Set start date:
         my ($val, $msg) = $ticket->SetStarts($starts);
         unless ($val) {
             $RT::Logger->error('Could not set start date: ' . $msg);
@@ -193,11 +203,16 @@ sub Commit {
         }
     }
 
-    ## Set due date:
-    unless (!$due || $due eq '1970-01-01 00:00:00') {
+    $RT::Logger->debug('Start date: ' . $starts);
+
+    ## Look at due date:
+    if (!$due || $due eq '1970-01-01 00:00:00') {
+        $RT::Logger->info('Set due date.');
+
         ## Fetch when ticket should be escalated by priority:
         my %priorities = RT->Config->Get('EscalateTicketsByPriority');
 
+        ## Validate priority:
         if (!exists $priorities{$priority}) {
             $RT::Logger->error('Unconfigured priority found: ' . $priority);
             return 0;
@@ -216,12 +231,15 @@ sub Commit {
         my $calc = $date->calc($delta);
         $due = $calc->printf($format);
 
+        ## Set due date:
         my ($val, $msg) = $ticket->SetDue($due);
         unless ($val) {
             $RT::Logger->error('Could not set due date: ' . $msg);
             return 0;
         }
     }
+
+    $RT::Logger->debug('Due date: ' . $due);
 
     return 1;
 }
