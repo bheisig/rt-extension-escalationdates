@@ -24,5 +24,9 @@ no_index:
 resources:
   license: http://dev.perl.org/licenses/
   repository: git://git.benjaminheisig.net/rt-extension-escalationdates.git
+provides:
+  RT::Action::EscalationDates:
+    file: lib/RT/Action/EscalationDates.pm
+    version: 0.2
 version: 0.2
 

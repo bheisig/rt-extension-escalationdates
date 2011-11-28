@@ -21,21 +21,26 @@ INSTALLATION
         make install
         make initdb
 
+    Note: Please read the following section before initiating the database.
+
 CONFIGURATION
   RT SITE CONFIGURATION
     To enabled this extension edit the RT site configuration located in
     "$RT_HOME/etc/RT_SiteConfig" (where $RT_HOME is the path to your RT
     installation):
 
-        Set(@Plugins,qw(RT::Extension::EscalationDates));
+        Set(@Plugins,qw(
+            RT::Extension::EscalationDates
+            RT::Action::EscalationDates
+        ));
 
-    It's very important that you already configured a custom field with your
-    priorities. After this step you must add this field to your
-    configuration:
+    Note: If you use "make initdb" during installation you'll create a
+    custom field with the name 'Priority' so it's unnecessary to create one
+    manually. This custom field provides the values 'A' till 'D'.
 
-        Set($PriorityField, 'Object-RT::Ticket--CustomField-1-Values');
+    Add the custom field with your priorities to your configuration:
 
-    In this example the first created custom field is used.
+        Set($PriorityField, 'Priority');
 
     Also you must define several priorities and relative dates for
     escalations:
@@ -115,4 +120,9 @@ COPYRIGHT AND LICENSE
     under the same terms as Perl itself.
 
     Request Tracker (RT) is Copyright Best Practical Solutions, LLC.
+
+SEE ALSO
+        RT
+        Date::Manip
+        RT::Action::EscalationDates
 
