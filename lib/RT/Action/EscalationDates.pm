@@ -114,7 +114,11 @@ sub Prepare {
     }
 
     ## Check configured priorities:
+    ## TODO This could throw 2 warnings:
+    ## 'Odd number of elements in hash assignment…' and
+    ## 'Use of uninitialized value in list assignment…'
     my %priorities = RT->Config->Get('EscalateTicketsByPriority');
+    ## TODO Does not work:
     unless (%priorities) {
         $RT::Logger->error(
             'Config: Information about escalating tickets by priority not set.'
@@ -136,7 +140,11 @@ sub Prepare {
     }
 
     ## Check configured Date::Manip:
+    ## TODO This could throw 2 warnings:
+    ## 'Odd number of elements in hash assignment…' and
+    ## 'Use of uninitialized value in list assignment…'
     my %dateConfig = RT->Config->Get('DateManipConfig');
+    ## TODO Does not work:
     unless (%dateConfig) {
         $RT::Logger->error('Config: Date::Manip\'s configuration not set.');
         return 0;
@@ -144,11 +152,17 @@ sub Prepare {
 
     ## Check custom field:
     my $cfPriority = RT->Config->Get('PriorityField');
+    unless ($cfPriority) {
+        $RT::Logger->error('Config: Priority field is not set.');
+        return 0;
+    }
+
+    ## Validate custom field:
     my $cf = RT::CustomField->new($RT::SystemUser);
     $cf->LoadByNameAndQueue(Name => $cfPriority, Queue => '0');
     unless($cf->id) {
         $RT::Logger->error(
-            'Config: Custom field ' . $cfPriority . ' does not exist.'
+            'Custom field "' . $cfPriority . '" is unknown. Have you created it yet?'
         );
         return 0;
     }
@@ -165,11 +179,11 @@ sub Commit {
     my $cfPriority = RT->Config->Get('PriorityField');
     my $priority = $ticket->FirstCustomFieldValue($cfPriority);
 
-    $RT::Logger->debug('Handling ticket: ' . $ticket->Id);
+    $RT::Logger->info('Handling ticket: ' . $ticket->Id);
 
     ## Set default priority:
     unless($priority) {
-        $RT::Logger->info('Set default priority: ' . $priority);
+        $RT::Logger->notice('Set default priority: ' . $priority);
 
         $priority = RT->Config->Get('DefaultPriority');
 
@@ -178,7 +192,7 @@ sub Commit {
         $ticket->AddCustomFieldValue(Field => $cf, Value => $priority);
     }
 
-    $RT::Logger->debug('Priority: ' . $priority);
+    $RT::Logger->info('Priority: ' . $priority);
 
     my $date = new Date::Manip::Date;
 
@@ -190,7 +204,7 @@ sub Commit {
 
     ## Look at start date:
     if (!$starts || $starts eq '1970-01-01 00:00:00') {
-        $RT::Logger->info('Set start date.');
+        $RT::Logger->notice('Set start date.');
 
         $date->parse($now);
         $starts = $date->printf($format);
@@ -207,7 +221,7 @@ sub Commit {
 
     ## Look at due date:
     if (!$due || $due eq '1970-01-01 00:00:00') {
-        $RT::Logger->info('Set due date.');
+        $RT::Logger->notice('Set due date.');
 
         ## Fetch when ticket should be escalated by priority:
         my %priorities = RT->Config->Get('EscalateTicketsByPriority');
@@ -239,7 +253,7 @@ sub Commit {
         }
     }
 
-    $RT::Logger->debug('Due date: ' . $due);
+    $RT::Logger->info('Due date: ' . $due);
 
     return 1;
 }
