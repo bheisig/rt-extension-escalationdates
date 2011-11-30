@@ -94,24 +94,22 @@ Request Tracker (RT) is Copyright Best Practical Solutions, LLC.
     RT::Extension::EscalationDates
 
 
+=head1 API
+
+
+=head2 Prepare
+
+Before the action may be L<commited|/"Commit"> preparation is needed: Has RT
+already been configured for this action? Has the needed custom field been
+created yet?
+
+
 =cut
 
 sub Prepare {
     my $self = shift;
 
     my $ticket = $self->TicketObj;
-
-    ## Check start date:
-    my $starts = $ticket->Starts;
-    unless ($starts) {
-        $RT::Logger->info('Start date is not set.');
-    }
-
-    ## Check due date::
-    my $due = $ticket->Due;
-    unless ($due) {
-        $RT::Logger->info('Due date is not set.');
-    }
 
     ## Check configured priorities:
     ## TODO This could throw 2 warnings:
@@ -170,6 +168,14 @@ sub Prepare {
     return 1;
 }
 
+
+=head2 Commit
+
+After preparation this method commits the action.
+
+
+=cut
+
 sub Commit {
     my $self = shift;
 
@@ -179,10 +185,8 @@ sub Commit {
     my $cfPriority = RT->Config->Get('PriorityField');
     my $priority = $ticket->FirstCustomFieldValue($cfPriority);
 
-    $RT::Logger->info('Handling ticket: ' . $ticket->Id);
-
     ## Set default priority:
-    unless($priority) {
+    unless ($priority) {
         $priority = RT->Config->Get('DefaultPriority');
 
         $RT::Logger->notice('Set priority: ' . $priority);
