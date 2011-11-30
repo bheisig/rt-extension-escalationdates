@@ -183,13 +183,20 @@ sub Commit {
 
     ## Set default priority:
     unless($priority) {
-        $RT::Logger->notice('Set default priority: ' . $priority);
-
         $priority = RT->Config->Get('DefaultPriority');
+
+        $RT::Logger->notice('Set priority: ' . $priority);
 
         my $cf = RT::CustomField->new($RT::SystemUser);
         $cf->LoadByNameAndQueue(Name => $cfPriority, Queue => $ticket->Queue);
-        $ticket->AddCustomFieldValue(Field => $cf, Value => $priority);
+        unless ($cf->id) {
+            $cf->LoadByNameAndQueue(Name => $cfPriority, Queue => 0);
+        }
+        my ($val, $msg) = $ticket->AddCustomFieldValue(Field => $cf, Value => $priority);
+        unless ($val) {
+            $RT::Logger->error('Could not set priority: ' . $msg);
+            return 0;
+        }
     }
 
     $RT::Logger->info('Priority: ' . $priority);
@@ -204,10 +211,10 @@ sub Commit {
 
     ## Look at start date:
     if (!$starts || $starts eq '1970-01-01 00:00:00') {
-        $RT::Logger->notice('Set start date.');
-
         $date->parse($now);
         $starts = $date->printf($format);
+
+        $RT::Logger->notice('Set start date: ' . $starts);
 
         ## Set start date:
         my ($val, $msg) = $ticket->SetStarts($starts);
@@ -221,8 +228,6 @@ sub Commit {
 
     ## Look at due date:
     if (!$due || $due eq '1970-01-01 00:00:00') {
-        $RT::Logger->notice('Set due date.');
-
         ## Fetch when ticket should be escalated by priority:
         my %priorities = RT->Config->Get('EscalateTicketsByPriority');
 
@@ -244,6 +249,8 @@ sub Commit {
         $delta->parse($deltaStr);
         my $calc = $date->calc($delta);
         $due = $calc->printf($format);
+
+        $RT::Logger->notice('Set due date: ' . $due);
 
         ## Set due date:
         my ($val, $msg) = $ticket->SetDue($due);

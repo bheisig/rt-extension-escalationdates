@@ -43,7 +43,7 @@ Note: Please read the following section before initiating the database.
 
 =head2 RT SITE CONFIGURATION
 
-To enabled this extension edit the RT site configuration located in
+To enable this extension edit the RT site configuration located in
 C<$RT_HOME/etc/RT_SiteConfig> (where C<$RT_HOME> is the path to your RT
 installation):
 
