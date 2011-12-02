@@ -228,7 +228,7 @@ sub Commit {
         }
     }
 
-    $RT::Logger->debug('Start date: ' . $starts);
+    $RT::Logger->info('Start date: ' . $starts);
 
     ## Look at due date:
     if (!$due || $due eq '1970-01-01 00:00:00') {

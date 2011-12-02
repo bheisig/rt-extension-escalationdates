@@ -18,6 +18,7 @@ meta-spec:
 name: RT-Extension-EscalationDates
 no_index:
   directory:
+    - etc
     - html
     - inc
     - t
