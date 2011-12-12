@@ -44,7 +44,7 @@ Note: Please read the following section before initiating the database.
 =head2 RT SITE CONFIGURATION
 
 To enable this extension edit the RT site configuration located in
-C<$RT_HOME/etc/RT_SiteConfig> (where C<$RT_HOME> is the path to your RT
+C<$RT_HOME/etc/RT_SiteConfig.pm> (where C<$RT_HOME> is the path to your RT
 installation):
 
     Set(@Plugins,qw(RT::Extension::EscalationDates));
