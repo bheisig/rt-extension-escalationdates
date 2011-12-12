@@ -205,11 +205,7 @@ sub Commit {
 
     $RT::Logger->info('Priority: ' . $priority);
 
-    my $timezone = RT->Config->Get('Timezone');
-    #$timezone = 'Europe/Berlin';
     my $date = new Date::Manip::Date;
-    #$date->convert($timezone);
-    #$date->convert();
 
     ## MySQL date time format:
     my $format = '%Y-%m-%d %T';
@@ -220,12 +216,14 @@ sub Commit {
     ## UNIX timestamp 0:
     my $notSet = '1970-01-01 00:00:00';
 
+    my $RTTimezone = 'UTC';
+
     ## Look at start date:
     if ($starts eq $notSet) {
         $date->parse($now);
         $starts = $date->printf($format);
+
         ## Convert to UTC time:
-        my $RTTimezone = 'UTC';
         $date->convert($RTTimezone);
         my $startsUTC = $date->printf($format);
 
@@ -237,9 +235,9 @@ sub Commit {
             $RT::Logger->error('Could not set start date: ' . $msg);
             return 0;
         }
+    } else {
+        $RT::Logger->info('Start date: ' . $starts);
     }
-
-    $RT::Logger->info('Start date: ' . $starts);
 
     ## Look at due date:
     if ($due eq $notSet) {
@@ -265,17 +263,21 @@ sub Commit {
         my $calc = $date->calc($delta);
         $due = $calc->printf($format);
 
-        $RT::Logger->notice('Set due date: ' . $due);
+        ## Convert to UTC time:
+        $calc->convert($RTTimezone);
+        my $dueUTC = $calc->printf($format);
+
+        $RT::Logger->notice('Set due date: ' . $due . ' (UTC: ' . $dueUTC . ')');
 
         ## Set due date:
-        my ($val, $msg) = $ticket->SetDue($due);
+        my ($val, $msg) = $ticket->SetDue($dueUTC);
         unless ($val) {
             $RT::Logger->error('Could not set due date: ' . $msg);
             return 0;
         }
+    } else {
+      $RT::Logger->info('Due date: ' . $due);
     }
-
-    $RT::Logger->info('Due date: ' . $due);
 
     return 1;
 }
