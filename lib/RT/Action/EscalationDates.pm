@@ -5,9 +5,9 @@ use strict;
 use warnings;
 
 use base qw(RT::Action);
-use Date::Manip;
+use Date::Manip::Date;
 
-our $VERSION = '0.2';
+our $VERSION = '0.3';
 
 
 =head1 NAME
@@ -205,7 +205,11 @@ sub Commit {
 
     $RT::Logger->info('Priority: ' . $priority);
 
+    my $timezone = RT->Config->Get('Timezone');
+    #$timezone = 'Europe/Berlin';
     my $date = new Date::Manip::Date;
+    #$date->convert($timezone);
+    #$date->convert();
 
     ## MySQL date time format:
     my $format = '%Y-%m-%d %T';
@@ -213,15 +217,22 @@ sub Commit {
     ## Destinated default time to start is (simply) now:
     my $now  = 'now';
 
+    ## UNIX timestamp 0:
+    my $notSet = '1970-01-01 00:00:00';
+
     ## Look at start date:
-    if (!$starts || $starts eq '1970-01-01 00:00:00') {
+    if ($starts eq $notSet) {
         $date->parse($now);
         $starts = $date->printf($format);
+        ## Convert to UTC time:
+        my $RTTimezone = 'UTC';
+        $date->convert($RTTimezone);
+        my $startsUTC = $date->printf($format);
 
-        $RT::Logger->notice('Set start date: ' . $starts);
+        $RT::Logger->notice('Set start date: ' . $starts . ' (UTC: ' . $startsUTC . ')');
 
         ## Set start date:
-        my ($val, $msg) = $ticket->SetStarts($starts);
+        my ($val, $msg) = $ticket->SetStarts($startsUTC);
         unless ($val) {
             $RT::Logger->error('Could not set start date: ' . $msg);
             return 0;
@@ -231,7 +242,7 @@ sub Commit {
     $RT::Logger->info('Start date: ' . $starts);
 
     ## Look at due date:
-    if (!$due || $due eq '1970-01-01 00:00:00') {
+    if ($due eq $notSet) {
         ## Fetch when ticket should be escalated by priority:
         my %priorities = RT->Config->Get('EscalateTicketsByPriority');
 

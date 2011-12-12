@@ -28,6 +28,6 @@ resources:
 provides:
   RT::Action::EscalationDates:
     file: lib/RT/Action/EscalationDates.pm
-    version: 0.2
-version: 0.2
+    version: 0.3
+version: 0.3
 
