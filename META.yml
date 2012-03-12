@@ -3,7 +3,7 @@ meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
 name: RT-Extension-EscalationDates
-version: 0.4
+version: 0.5
 abstract: 'Set start and due time automatically when creating a ticket'
 author:
   - Benjamin Heisig <bheisig@synetics.de>
@@ -20,10 +20,10 @@ configure_requires:
 provides:
   RT::Extension::EscalationDates:
     file: lib/RT/Extension/EscalationDates.pm
-    version: 0.4
+    version: 0.5
   RT::Action::EscalationDates:
     file: lib/RT/Action/EscalationDates.pm
-    version: 0.4
+    version: 0.5
 no_index:
   directory:
     - etc

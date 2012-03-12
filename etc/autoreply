@@ -1,0 +1,52 @@
+Subject: AutoReply: {$Ticket->Subject}
+
+
+Greetings,
+
+This message has been automatically generated in response to the
+creation of a trouble ticket regarding:
+    "{$Ticket->Subject()}", 
+a summary of which appears below.
+
+There is no need to reply to this message right now.  Your ticket has been
+assigned an ID of { $Ticket->SubjectTag }.
+
+Please include the string:
+
+         { $Ticket->SubjectTag }
+
+in the subject line of all future correspondence about this issue. To do so, 
+you may reply to this message.
+
+                        Thank you,
+                        {$Ticket->QueueObj->CorrespondAddress()}
+
+-------------------------------------------------------------------------
+{$Transaction->Content()}
+
+{
+
+my $cfPriority = RT->Config->Get('PriorityField');
+unless ($cfPriority) {
+    return;
+}
+
+my $priority = $Ticket->FirstCustomFieldValue($cfPriority);
+unless ($priority) {
+    $priority = RT->Config->Get('DefaultPriority');
+    unless ($priority) {
+        return;
+    }
+
+    my $cf = RT::CustomField->new($RT::SystemUser);
+    $cf->LoadByNameAndQueue(Name => $cfPriority, Queue => $Ticket->Queue);
+    unless ($cf->id) {
+        $cf->LoadByNameAndQueue(Name => $cfPriority, Queue => 0);
+    }
+
+    $Ticket->AddCustomFieldValue(Field => $cf, Value => $priority);
+}
+
+$priority;
+
+}

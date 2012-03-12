@@ -7,7 +7,7 @@ use warnings;
 use base qw(RT::Action);
 use Date::Manip::Date;
 
-our $VERSION = '0.4';
+our $VERSION = '0.5';
 
 
 =head1 NAME
