@@ -7,7 +7,7 @@ use warnings;
 use base qw(RT::Action);
 use Date::Manip::Date;
 
-our $VERSION = '0.5';
+our $VERSION = '0.6';
 
 
 =head1 NAME
@@ -79,7 +79,7 @@ Please report any bugs or feature requests to the L<author|/"AUTHOR">.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2011 synetics GmbH, E<lt>http://i-doit.org/E<gt>
+Copyright 2012 synetics GmbH, E<lt>http://i-doit.org/E<gt>
 
 This program is free software; you can redistribute it and/or modify it under
 the same terms as Perl itself.

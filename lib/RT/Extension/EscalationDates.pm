@@ -136,7 +136,7 @@ Please report any bugs or feature requests to the L<author|/"AUTHOR">.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2011 synetics GmbH, E<lt>http://i-doit.org/E<gt>
+Copyright 2012 synetics GmbH, E<lt>http://i-doit.org/E<gt>
 
 This program is free software; you can redistribute it and/or modify it under
 the same terms as Perl itself.
