@@ -1,5 +1,8 @@
 Revision history for RT-Extension-EscalationDates
 
+0.6     tba
+        move Perl code to the beginning of the autoreply mail
+
 0.5     Mon, 12 Mar 2012 11:59:23 +0100
         use autoreply to set default priority
 
